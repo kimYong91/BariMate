@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend # backend 폴더의 Dockerfile 사용
+      dockerfile: Dockerfile
+    container_name: barimate-backend-dev
+    ports:
+      - "8000:8000" # 호스트 8000번 -> 컨테이너 8000번
+    volumes:
+      - ./backend:/app # 로컬 backend 폴더를 컨테이너 /app 에 마운트 (코드 변경 실시간 반영)
+    environment:
+      # 필요한 환경 변수 (예: API_KEY 등)는 여기에 추가하거나 .env 파일 사용
+      # - PYTHONUNBUFFERED=1 # 이미 Dockerfile에 있지만 명시적으로 추가 가능
+      - WATCHFILES_FORCE_POLLING=true # Docker 볼륨 마운트 환경에서 uvicorn --reload 안정성 향상 (필요시)
+    # depends_on:
+      # - db # 만약 데이터베이스 서비스가 있다면
+
+  frontend:
+    build:
+      context: ./frontend # frontend 폴더의 Dockerfile 사용
+      dockerfile: Dockerfile
+    container_name: barimate-frontend-dev
+    ports:
+      - "3000:80" # 호스트 3000번 -> 컨테이너 80번 (Nginx 기본 포트)
+    # volumes:
+      # 프론트엔드 개발 시에는 로컬 개발 서버(npm start)를 사용하는 것이 더 편리할 수 있음
+      # 만약 Docker로 프론트엔드 개발 서버를 운영하고 싶다면 아래와 같이 소스코드 마운트 및 CMD 변경 필요
+      # - ./frontend:/app
+      # command: yarn start # 또는 npm start (Dockerfile CMD 대신 실행)
+    depends_on:
+      - backend # 백엔드가 먼저 실행되도록 (API 요청을 위해)
+    # environment:
+      # - REACT_APP_API_URL=http://localhost:8000/api # React 앱이 백엔드 API를 호출할 주소 (예시)
+
+# volumes:
+  # db_data: # 데이터베이스 볼륨 (필요시) 
