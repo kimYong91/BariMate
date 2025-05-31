@@ -28,7 +28,8 @@
 *   **음성 녹음 및 단어 추출**: 회의/대화 내용 녹음 후 STT(Speech-to-Text) 기술을 활용한 주요 단어 자동 추출
 *   **AI 설명**: 입력된 용어들에 대해 AI가 주제 기반으로 상세 설명 및 표 형태로 정리
     *   예: "백엔드" 주제와 관련된 "API", "데이터베이스", "서버" 용어 입력 시, 각 용어에 대한 설명과 관계를 정리
-*   **용어 검색**: 앱 내에 저장된 자신의 용어 및 설명 검색
+*   **용어 검색**: 앱 내에 저장된 자신의 용어 및 설명 검색 (향후 의미 기반 검색 지원)
+*   **AI 기반 용어 연결**: 저장된 용어/메모 간의 관련성을 AI가 추천하고, 사용자가 수동으로 연결하여 지식 네트워크 구축
 *   **공유된 정리글 열람 및 검색**: 다른 사용자가 공유한 용어 정리 내용 열람 및 검색
 *   **사용자 인증**: 로그인 및 회원가입 기능
 
@@ -49,7 +50,7 @@
 
 *   **Frontend**: React (Vite), (PWA 지원 추후 고려)
 *   **Backend**: Python (FastAPI)
-*   **Database**: MySQL
+*   **Database**: PostgreSQL (pgvector 확장 사용)
 *   **AI/ML**: Google Gemini API (예정) 또는 기타 LLM API (KoBERT 등 STT 및 NLP 처리 포함)
 *   **Deployment**: AWS, Google Cloud Platform, Azure (추후 선정)
 *   **Development Environment**: Docker, Docker Compose
@@ -69,11 +70,12 @@
     ```bash
     docker-compose up --build
     ```
-    이 명령은 `backend`와 `frontend`의 Docker 이미지를 빌드하고, 컨테이너를 생성하여 실행합니다. 터미널에 각 서비스의 로그가 출력됩니다.
+    이 명령은 `backend`, `frontend`, 그리고 `database (PostgreSQL)` 서비스의 Docker 이미지를 빌드(또는 재사용)하고, 컨테이너를 생성하여 실행합니다. 터미널에 각 서비스의 로그가 출력됩니다.
 
 3.  **서비스 접속**:
     *   프론트엔드 (Vite React): `http://localhost:3000`
     *   백엔드 (FastAPI): `http://localhost:8000` (API 문서는 `http://localhost:8000/docs`)
+    *   데이터베이스 (PostgreSQL): `localhost:5432` (예: `psql -h localhost -p 5432 -U barimate_user -d barimate_db` 명령으로 접속 가능. 비밀번호는 `barimate_password` - `docker-compose.yml` 참조)
 
 4.  **실행 중인 서비스 중지**:
     *   `docker-compose up` 명령을 실행한 터미널에서 `Ctrl+C`를 누르면 서비스가 중지됩니다.

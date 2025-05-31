@@ -28,6 +28,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 # (선택 사항) Nginx 설정을 커스터마이징하려면 아래 주석 해제 후 nginx.conf 파일 생성 및 복사
 # COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf # 사용자 정의 nginx.conf 사용
 
 # Nginx가 80번 포트 사용
 EXPOSE 80
