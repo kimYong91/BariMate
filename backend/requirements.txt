@@ -1,4 +1,16 @@
 fastapi
 uvicorn[standard]
 google-generativeai
-# 다른 필요한 라이브러리가 있다면 여기에 추가하세요. 
+
+# Firebase Admin SDK (Firestore, Auth ID 토큰 검증 등)
+firebase-admin
+
+# Pydantic은 FastAPI의 의존성으로 자동 설치될 가능성이 높지만, 명시적으로 추가
+pydantic
+
+# (선택적) FastAPI 자체 JWT 인증 및 보안 강화 시 (현재는 Firebase ID 토큰 우선)
+# python-jose[cryptography]
+# passlib[bcrypt]
+
+# 텍스트 임베딩 생성 (Gemini API 임베딩 기능 사용 시 제외 가능)
+# sentence-transformers
