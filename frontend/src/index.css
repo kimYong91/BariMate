@@ -1,27 +1,18 @@
 /* frontend/src/index.css */
 
-/* Vite 기본 스타일 대부분 제거. */
-body {
-  margin: 0; /* 브라우저 기본 마진 제거 */
-  background-color: #f4f6f8; /* 앱 배경색 일관성 유지 - MemoCreatePage와 동일하게 */
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; /* 일반적인 시스템 UI 폰트 스택 */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* 필요에 따라 앱 전체에 적용할 추가적인 기본 스타일을 여기에 정의할 수 있습니다. */
-/* 예를 들어, 기본 링크 스타일, 박스 사이징 등 */
-/*
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+/* BariMate - 글로벌 스타일 */
 
 * {
   box-sizing: border-box;
 }
-*/
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}

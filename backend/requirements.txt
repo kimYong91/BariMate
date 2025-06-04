@@ -1,6 +1,13 @@
 fastapi
 uvicorn[standard]
+
+# AI 라이브러리
 google-generativeai
+
+# 데이터베이스 관련
+sqlalchemy
+psycopg2-binary
+alembic
 
 # Firebase Admin SDK (Firestore, Auth ID 토큰 검증 등)
 firebase-admin

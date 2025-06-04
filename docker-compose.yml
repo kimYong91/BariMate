@@ -1,4 +1,22 @@
 services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: barimate-db-dev
+    environment:
+      - POSTGRES_DB=barimate
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d  # 초기 스키마 스크립트
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend # backend 폴더의 Dockerfile 사용
@@ -9,10 +27,15 @@ services:
     volumes:
       - ./backend:/app # 로컬 backend 폴더를 컨테이너 /app 에 마운트 (코드 변경 실시간 반영)
     environment:
-      # 필요한 환경 변수 (예: API_KEY, FIREBASE_SERVICE_ACCOUNT_KEY_PATH 등)는 여기에 추가하거나 .env 파일 사용
+      # PostgreSQL 연결 설정
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/barimate
+      # Gemini AI API 설정
+      - GEMINI_API_KEY=AIzaSyAcK6T0qLMRX_K4Q0z6GxtJmvyDOBf7vQw  # 실제 API 키로 변경하세요
       - WATCHFILES_FORCE_POLLING=true # Docker 볼륨 마운트 환경에서 uvicorn --reload 안정성 향상 (필요시)
       # - PYTHONUNBUFFERED=1 # 이미 Dockerfile에 있지만 명시적으로 추가 가능
-    # depends_on: # db 서비스가 없으므로 삭제
+    depends_on:
+      db:
+        condition: service_healthy
 
   frontend:
     build:
@@ -34,4 +57,5 @@ services:
       - VITE_API_BASE_URL=/api # Vite 개발 서버가 환경 변수를 읽도록 명시
       # CHOKIDAR_USEPOLLING=true # 파일 변경 감지 문제 발생 시 고려
 
-# volumes: # db_data 볼륨 정의 삭제 
+volumes:
+  db_data: 
