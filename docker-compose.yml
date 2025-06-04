@@ -1,6 +1,22 @@
-version: '3.8'
-
 services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: barimate-db-dev
+    environment:
+      - POSTGRES_DB=barimate
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d  # 초기 스키마 스크립트
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend # backend 폴더의 Dockerfile 사용
@@ -11,42 +27,35 @@ services:
     volumes:
       - ./backend:/app # 로컬 backend 폴더를 컨테이너 /app 에 마운트 (코드 변경 실시간 반영)
     environment:
-      # 필요한 환경 변수 (예: API_KEY 등)는 여기에 추가하거나 .env 파일 사용
+      # PostgreSQL 연결 설정
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/barimate
+      # Gemini AI API 설정
+      - GEMINI_API_KEY=AIzaSyAcK6T0qLMRX_K4Q0z6GxtJmvyDOBf7vQw  # 실제 API 키로 변경하세요
       - WATCHFILES_FORCE_POLLING=true # Docker 볼륨 마운트 환경에서 uvicorn --reload 안정성 향상 (필요시)
-      - DATABASE_URL=postgresql://barimate_user:barimate_password@db:5432/barimate_db
       # - PYTHONUNBUFFERED=1 # 이미 Dockerfile에 있지만 명시적으로 추가 가능
     depends_on:
-      - db # 데이터베이스 서비스가 먼저 실행되도록
+      db:
+        condition: service_healthy
 
   frontend:
     build:
       context: ./frontend # frontend 폴더의 Dockerfile 사용
       dockerfile: Dockerfile
+      # target: builder # Dockerfile이 단일 스테이지이므로 이 라인 주석 처리 또는 삭제
+      # args: # VITE_API_BASE_URL은 environment로 전달하므로 이 섹션 주석 처리 또는 삭제
+      #   - VITE_API_BASE_URL=/api 
     container_name: barimate-frontend-dev
     ports:
-      - "3000:80" # 호스트 3000번 -> 컨테이너 80번 (Nginx 기본 포트)
-    # volumes:
-      # 프론트엔드 개발 시에는 로컬 개발 서버(npm start)를 사용하는 것이 더 편리할 수 있음
-      # 만약 Docker로 프론트엔드 개발 서버를 운영하고 싶다면 아래와 같이 소스코드 마운트 및 CMD 변경 필요
-      # - ./frontend:/app
-      # command: yarn start # 또는 npm start (Dockerfile CMD 대신 실행)
+      - "5173:5173" # Vite 개발 서버 포트로 변경 (기존 3000:80)
+    volumes:
+      - ./frontend:/app # 로컬 frontend 폴더를 컨테이너 /app 에 마운트 (소스코드 실시간 반영)
+      - /app/node_modules # 컨테이너 내 node_modules를 로컬로 덮어쓰지 않도록 익명 볼륨 사용
+    # command: npm run dev # Dockerfile의 CMD를 사용하므로 이 라인 주석 처리 또는 삭제
     depends_on:
       - backend # 백엔드가 먼저 실행되도록 (API 요청을 위해)
-    # environment:
-      # - REACT_APP_API_URL=http://localhost:8000/api # React 앱이 백엔드 API를 호출할 주소 (예시)
-
-  db:
-    image: pgvector/pgvector:pg16 # pgvector 확장이 포함된 PostgreSQL 16 이미지
-    container_name: barimate-db-dev
     environment:
-      - POSTGRES_USER=barimate_user
-      - POSTGRES_PASSWORD=barimate_password
-      - POSTGRES_DB=barimate_db
-    volumes:
-      - db_data:/var/lib/postgresql/data # 데이터베이스 데이터 지속성을 위한 볼륨
-    ports:
-      - "5432:5432" # 호스트에서 직접 DB 접근이 필요한 경우 (개발용)
-    restart: unless-stopped
+      - VITE_API_BASE_URL=/api # Vite 개발 서버가 환경 변수를 읽도록 명시
+      # CHOKIDAR_USEPOLLING=true # 파일 변경 감지 문제 발생 시 고려
 
 volumes:
-  db_data: # 데이터베이스 볼륨 정의 
+  db_data: 
